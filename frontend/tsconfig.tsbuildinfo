@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/navbar.tsx","./src/components/protectedroute.tsx","./src/pages/aulas.tsx","./src/pages/courses.tsx","./src/pages/landingpage.tsx","./src/pages/login.tsx","./src/pages/profile.tsx","./src/pages/register.tsx"],"version":"6.0.3"}
