@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 
 const API_URL = 'http://localhost:3001';
@@ -22,7 +22,7 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setUser(res.data))
-      .catch((err) => {
+      .catch(() => {
         setError('Sessão expirada. Faça login novamente.');
         localStorage.removeItem('token');
         setTimeout(() => navigate('/login'), 2000);
@@ -30,27 +30,33 @@ export default function Profile() {
       .finally(() => setLoading(false));
   }, [navigate]);
 
-  if (loading) return <div className="text-center" style={{ marginTop: '3rem' }}>Carregando...</div>;
-  if (error) return <div className="text-center text-red-500" style={{ marginTop: '3rem' }}>{error}</div>;
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
+  if (loading) return <div className="auth-page"><div className="card text-center">Carregando dados...</div></div>;
+  if (error) return <div className="auth-page"><div className="card error-message">{error}</div></div>;
 
   return (
     <>
       <Navbar />
-      <div className="container">
-        <div className="card max-w-2xl mx-auto" style={{ marginTop: '2rem' }}>
-          <h2 className="text-2xl font-bold mb-4">Meu Perfil</h2>
-          <p><strong>ID:</strong> {user.id}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <div style={{ marginTop: '2rem' }}>
-            <button
-              onClick={() => {
-                localStorage.removeItem('token');
-                navigate('/login');
-              }}
-              className="btn btn-danger"
-            >
-              Sair da conta
-            </button>
+      <div className="auth-page">
+        <div className="card" style={{ maxWidth: '550px' }}>
+          <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Meu perfil</h2>
+          <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.75rem', marginBottom: '1.5rem' }}>
+            <p><strong>ID:</strong> {user.id}</p>
+            <p><strong>E-mail:</strong> {user.email}</p>
+            <p><strong>Status do curso:</strong> {user.hasPurchased ? '✅ Liberado' : '⛔ Não comprado'}</p>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            {!user.hasPurchased && (
+              <Link to="/courses" className="btn btn-primary" style={{ flex: 1, textAlign: 'center' }}>Comprar curso</Link>
+            )}
+            {user.hasPurchased && (
+              <Link to="/aulas" className="btn btn-primary" style={{ flex: 1, textAlign: 'center' }}>Acessar aulas</Link>
+            )}
+            <button onClick={handleLogout} className="btn btn-outline" style={{ flex: 1 }}>Sair da conta</button>
           </div>
         </div>
       </div>

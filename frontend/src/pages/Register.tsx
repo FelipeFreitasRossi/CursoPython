@@ -11,6 +11,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,59 +20,71 @@ export default function Register() {
       setError('As senhas não coincidem');
       return;
     }
+    setLoading(true);
+    setError('');
     try {
       const res = await axios.post(`${API_URL}/api/register`, { email, password });
       localStorage.setItem('token', res.data.token);
       setSuccess('Cadastro realizado com sucesso! Redirecionando...');
       setTimeout(() => navigate('/profile'), 1500);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Erro no cadastro');
+      setError(err.response?.data?.error || 'Erro no cadastro. Tente outro e-mail.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <>
       <Navbar />
-      <div className="container">
-        <div className="card max-w-md mx-auto" style={{ marginTop: '3rem' }}>
-          <h2 className="text-2xl font-bold mb-4">Cadastro</h2>
-          {error && <p className="text-red-500">{error}</p>}
-          {success && <p className="text-green-600">{success}</p>}
+      <div className="auth-page">
+        <div className="card">
+          <h2 className="text-center" style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Criar conta</h2>
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Email</label>
+              <label htmlFor="email">E-mail</label>
               <input
+                id="email"
                 type="email"
                 className="form-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                placeholder="seu@email.com"
               />
             </div>
             <div className="form-group">
-              <label>Senha</label>
+              <label htmlFor="password">Senha</label>
               <input
+                id="password"
                 type="password"
                 className="form-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                placeholder="mínimo 6 caracteres"
               />
             </div>
             <div className="form-group">
-              <label>Confirmar senha</label>
+              <label htmlFor="confirmPassword">Confirmar senha</label>
               <input
+                id="confirmPassword"
                 type="password"
                 className="form-input"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                placeholder="digite novamente"
               />
             </div>
-            <button type="submit" className="btn btn-primary w-full">Cadastrar</button>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Processando...' : 'Cadastrar'}
+            </button>
           </form>
-          <p className="text-center mt-4">
-            Já tem conta? <Link to="/login" style={{ color: '#3776AB' }}>Faça login</Link>
+          <p className="text-center mt-4" style={{ fontSize: '0.9rem' }}>
+            Já possui conta? <Link to="/login" style={{ color: '#3776AB', fontWeight: 500 }}>Fazer login</Link>
           </p>
         </div>
       </div>

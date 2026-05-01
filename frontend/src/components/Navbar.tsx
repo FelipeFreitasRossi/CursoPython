@@ -1,54 +1,75 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 export default function Navbar() {
+  const [menuAberto, setMenuAberto] = useState(false);
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
+    setMenuAberto(false);
   };
 
   return (
-    <nav style={{ backgroundColor: '#0f172a', color: 'white', padding: '1rem 0' }}>
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link 
-          to="/" 
-          style={{ 
-            color: 'white', 
-            textDecoration: 'none', 
-            fontWeight: 'bold', 
-            fontSize: '1.25rem', 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.5rem' 
-          }}
-        >
-          <img 
-            src="https://i.postimg.cc/3N8WrL4W/Logo-Python-removebg-preview.png" 
-            alt="Python Logo" 
-            style={{ height: '32px', width: 'auto' }}
-          />
-          <span>PythonPro</span>
-        </Link>
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          <Link to="/" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Início</Link>
-          {!token ? (
+    <>
+      <nav className="navbar-landing">
+        <div className="container nav-container">
+          <div className="logo">
+            <img
+              src="https://i.postimg.cc/3N8WrL4W/Logo-Python-removebg-preview.png"
+              alt="Python Logo"
+              className="python-logo-realista"
+            />
+            <span>PythonPro</span>
+          </div>
+
+          {/* Links Desktop */}
+          <ul className="nav-links desktop-nav">
+            <li><Link to="/">Início</Link></li>
+            {token ? (
+              <>
+                <li><Link to="/courses">Cursos</Link></li>
+                <li><Link to="/profile">Perfil</Link></li>
+                <li><button onClick={handleLogout} className="link-button">Sair</button></li>
+              </>
+            ) : (
+              <>
+                <li><Link to="/login">Login</Link></li>
+                <li><Link to="/register">Cadastro</Link></li>
+              </>
+            )}
+          </ul>
+
+          {/* Botão Hamburguer (mobile) */}
+          <button className="hamburguer" onClick={() => setMenuAberto(!menuAberto)}>
+            <span className="bar"></span>
+            <span className="bar"></span>
+            <span className="bar"></span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Menu Lateral Mobile */}
+      <div className={`mobile-menu ${menuAberto ? 'aberto' : ''}`}>
+        <button className="close-menu" onClick={() => setMenuAberto(false)}>✕</button>
+        <ul>
+          <li><Link to="/" onClick={() => setMenuAberto(false)}>Início</Link></li>
+          {token ? (
             <>
-              <Link to="/login" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Login</Link>
-              <Link to="/register" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Cadastro</Link>
+              <li><Link to="/courses" onClick={() => setMenuAberto(false)}>Cursos</Link></li>
+              <li><Link to="/profile" onClick={() => setMenuAberto(false)}>Perfil</Link></li>
+              <li><button className="btn-aluno-mobile" onClick={handleLogout}>Sair</button></li>
             </>
           ) : (
             <>
-              <Link to="/courses" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Cursos</Link>
-              <Link to="/profile" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Perfil</Link>
-              <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#e2e8f0', cursor: 'pointer' }}>
-                Sair
-              </button>
+              <li><Link to="/login" onClick={() => setMenuAberto(false)}>Login</Link></li>
+              <li><Link to="/register" onClick={() => setMenuAberto(false)}>Cadastro</Link></li>
             </>
           )}
-        </div>
+        </ul>
       </div>
-    </nav>
+    </>
   );
 }

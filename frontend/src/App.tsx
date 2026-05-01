@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Courses from './pages/Courses';
 import ProtectedRoute from './components/ProtectedRoute';
+import Aulas from './pages/Aulas';
+
 
 function App() {
   return (
@@ -26,6 +28,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Courses />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/aulas"
+          element={
+            <ProtectedRoute>
+              <Aulas />
             </ProtectedRoute>
           }
         />
