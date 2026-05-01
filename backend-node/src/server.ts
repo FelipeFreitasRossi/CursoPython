@@ -10,12 +10,12 @@ dotenv.config();
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret_in_production';
 
-// Configuração do Mercado Pago (usando Access Token de produção ou teste)
+// Configuração do Mercado Pago
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
 });
 
-// Banco em memória (substituir por PostgreSQL em produção)
+// Banco em memória (substituir por PostgreSQL/MongoDB em produção)
 const users: any[] = [];
 const purchases: { userId: number; courseId: string; date: Date }[] = [];
 
@@ -61,7 +61,7 @@ app.get('/api/profile', (req, res) => {
   }
 });
 
-// ========== CRIA PREFERÊNCIA DE PAGAMENTO (MERCADO PAGO) ==========
+// ========== ROTA DE CRIAÇÃO DE PREFERÊNCIA (MERCADO PAGO) ==========
 app.post('/api/create-preference', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Não autorizado' });
@@ -79,6 +79,7 @@ app.post('/api/create-preference', async (req, res) => {
     const body = {
       items: [
         {
+          id: 'curso-python-completo',      // ID obrigatório para o SDK
           title: 'Curso Python Completo',
           quantity: 1,
           unit_price: 19.90,
@@ -87,7 +88,7 @@ app.post('/api/create-preference', async (req, res) => {
         },
       ],
       payer: {
-        email: 'comprador@exemplo.com', // será substituído pelo email real do usuário se disponível
+        email: 'comprador@exemplo.com',    // Substitua pelo email do usuário logado se disponível
       },
       back_urls: {
         success: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/cursos?success=true`,
@@ -100,13 +101,13 @@ app.post('/api/create-preference', async (req, res) => {
     };
     const response = await preference.create({ body });
     res.json({ checkoutUrl: response.init_point });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao criar preferência de pagamento' });
+    res.status(500).json({ error: error.message || 'Erro ao criar preferência de pagamento' });
   }
 });
 
-// ========== WEBHOOK MERCADO PAGO ==========
+// ========== WEBHOOK DO MERCADO PAGO ==========
 app.post('/webhook', express.json(), async (req, res) => {
   try {
     const { type, data } = req.body;
@@ -129,7 +130,7 @@ app.post('/webhook', express.json(), async (req, res) => {
   }
 });
 
-// ========== ROTA DE AULAS (PROTEGIDA, APÓS COMPRA) ==========
+// ========== ROTA DE AULAS (PROTEGIDA) ==========
 app.get('/api/aulas', (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Não autorizado' });
@@ -155,4 +156,11 @@ app.get('/api/aulas', (req, res) => {
   res.json(aulas);
 });
 
+// ========== INICIALIZAÇÃO DO SERVIDOR (LOCAL) ==========
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
+});
+
+// Exportação para deploy serverless (Vercel) – opcional
 export default app;
