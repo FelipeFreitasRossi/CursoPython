@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL_DEV } from '../../config';
 
 export default function Profile() {
   const [user, setUser] = useState<any>(null);
@@ -18,7 +17,7 @@ export default function Profile() {
       return;
     }
     axios
-      .get(`${API_URL}/api/profile`, {
+      .get(`${API_URL_DEV}/api/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setUser(res.data))

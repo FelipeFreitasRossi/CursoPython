@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL_DEV } from '../../config';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -17,7 +16,7 @@ export default function Login() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.post(`${API_URL}/api/login`, { email, password });
+      const res = await axios.post(`${API_URL_DEV}/api/login`, { email, password });
       localStorage.setItem('token', res.data.token);
       navigate('/profile');
     } catch (err: any) {

@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL_DEV } from '../../config';
 
 export default function Courses() {
   const navigate = useNavigate();
@@ -51,7 +50,7 @@ export default function Courses() {
     setMessageType('');
     try {
       const res = await axios.post(
-        `${API_URL}/api/create-preference`,
+        `${API_URL_DEV}/api/create-preference`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
