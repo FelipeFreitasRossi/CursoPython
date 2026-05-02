@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function Courses() {
   const navigate = useNavigate();
@@ -12,13 +12,12 @@ export default function Courses() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
 
-  // Verificar parâmetros de retorno do Mercado Pago
   useEffect(() => {
     const success = searchParams.get('success');
     const canceled = searchParams.get('canceled');
     if (success === 'true') {
       setMessageType('success');
-      setMessage('Pagamento realizado com sucesso! Seu acesso foi liberado.');
+      setMessage('Pagamento aprovado! Seu acesso foi liberado.');
       window.history.replaceState({}, '', '/courses');
     } else if (canceled === 'true') {
       setMessageType('error');
@@ -31,7 +30,7 @@ export default function Courses() {
     id: 'python-completo',
     title: 'Python Completo',
     price: 19.90,
-    description: 'Do zero ao avançado com projetos reais, exercícios corrigidos automaticamente e certificado.',
+    description: 'Do zero ao avançado com projetos reais e correção automática.',
     features: [
       '80+ horas de vídeo',
       '150+ exercícios com correção automática',
@@ -59,10 +58,10 @@ export default function Courses() {
       if (res.data.checkoutUrl) {
         window.location.href = res.data.checkoutUrl;
       } else {
-        setMessageType('error');
-        setMessage('Link de pagamento não recebido. Tente novamente.');
+        throw new Error('URL de checkout não retornada');
       }
     } catch (err: any) {
+      console.error(err);
       setMessageType('error');
       setMessage(err.response?.data?.error || 'Erro ao iniciar pagamento. Tente mais tarde.');
     } finally {
@@ -81,11 +80,9 @@ export default function Courses() {
           <p style={{ textAlign: 'center', color: '#475569', marginBottom: '1rem' }}>
             {course.description}
           </p>
-          
           <div style={{ textAlign: 'center', fontSize: '2.5rem', fontWeight: 'bold', color: '#1e3a5f', marginBottom: '1.5rem' }}>
             R$ {course.price.toFixed(2)}
           </div>
-
           <div style={{ marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>O que você vai aprender:</h3>
             <ul style={{ listStyle: 'none', padding: 0 }}>
@@ -96,13 +93,11 @@ export default function Courses() {
               ))}
             </ul>
           </div>
-
           {message && (
             <div className={messageType === 'success' ? 'success-message' : 'error-message'}>
               {message}
             </div>
           )}
-
           <button
             onClick={handleBuy}
             disabled={buying}
