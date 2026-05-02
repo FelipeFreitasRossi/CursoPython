@@ -18,18 +18,15 @@ const purchases: { userId: number; courseId: string; date: Date }[] = [];
 const allowedOrigins = [
   'https://cursopython.vercel.app',
   'https://cursopython-97q6.onrender.com',
-  'http://localhost:5173'
+  'http://localhost:5173',
+  'http://localhost:3001'
 ];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS blocked'));
-    }
-  },
-  credentials: true
+  origin: true,  // permite qualquer origem (apenas para testes)
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
