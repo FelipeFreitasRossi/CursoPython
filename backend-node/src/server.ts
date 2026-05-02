@@ -9,21 +9,34 @@ dotenv.config();
 
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret_in_production';
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! });
 
-// Configuração do Mercado Pago
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN!,
-});
-
-// Banco em memória (substituir por PostgreSQL/MongoDB em produção)
 const users: any[] = [];
 const purchases: { userId: number; courseId: string; date: Date }[] = [];
 
-// ========== MIDDLEWARES ==========
-app.use(cors());
+// 🔥 CORS CORRETO PARA PRODUÇÃO
+const allowedOrigins = [
+  'https://cursopython.vercel.app',
+  'https://cursopython-97q6.onrender.com',
+  'http://localhost:5173'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS não permitido'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
-// ========== ROTAS DE AUTENTICAÇÃO ==========
+// ========== ROTAS ==========
 app.post('/api/register', async (req, res) => {
   const { email, password } = req.body;
   if (users.find(u => u.email === email)) {
@@ -61,7 +74,6 @@ app.get('/api/profile', (req, res) => {
   }
 });
 
-// ========== ROTA DE CRIAÇÃO DE PREFERÊNCIA (MERCADO PAGO) ==========
 app.post('/api/create-preference', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Não autorizado' });
@@ -73,64 +85,46 @@ app.post('/api/create-preference', async (req, res) => {
   } catch {
     return res.status(403).json({ error: 'Token inválido' });
   }
-
   try {
     const preference = new Preference(client);
     const body = {
-      items: [
-        {
-          id: 'curso-python-completo',      // ID obrigatório para o SDK
-          title: 'Curso Python Completo',
-          quantity: 1,
-          unit_price: 19.90,
-          currency_id: 'BRL',
-          description: 'Do zero ao avançado com projetos reais e correção automática.',
-        },
-      ],
-      payer: {
-        email: 'comprador@exemplo.com',    // Substitua pelo email do usuário logado se disponível
-      },
+      items: [{ id: 'curso-python-completo', title: 'Curso Python Completo', quantity: 1, unit_price: 19.90, currency_id: 'BRL', description: 'Do zero ao avançado com projetos reais e correção automática.' }],
+      payer: { email: 'comprador@exemplo.com' },
       back_urls: {
-        success: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/cursos?success=true`,
-        failure: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/cursos?canceled=true`,
-        pending: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/cursos?canceled=true`,
+        success: `${process.env.FRONTEND_URL}/cursos?success=true`,
+        failure: `${process.env.FRONTEND_URL}/cursos?canceled=true`,
+        pending: `${process.env.FRONTEND_URL}/cursos?canceled=true`
       },
       auto_return: 'approved',
       external_reference: userId.toString(),
-      notification_url: `${process.env.WEBHOOK_URL || 'https://seudominio.com'}/webhook`,
+      notification_url: `${process.env.WEBHOOK_URL}/webhook`
     };
     const response = await preference.create({ body });
     res.json({ checkoutUrl: response.init_point });
   } catch (error: any) {
     console.error(error);
-    res.status(500).json({ error: error.message || 'Erro ao criar preferência de pagamento' });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// ========== WEBHOOK DO MERCADO PAGO ==========
 app.post('/webhook', express.json(), async (req, res) => {
   try {
     const { type, data } = req.body;
     if (type === 'payment') {
-      const paymentId = data.id;
-      const payment = await new Payment(client).get({ id: paymentId });
+      const payment = await new Payment(client).get({ id: data.id });
       if (payment.status === 'approved') {
         const userId = parseInt(payment.external_reference!);
-        const courseId = 'python-completo';
-        if (!isNaN(userId)) {
-          purchases.push({ userId, courseId, date: new Date() });
-          console.log(`✅ Pagamento confirmado para o usuário ${userId}`);
-        }
+        purchases.push({ userId, courseId: 'python-completo', date: new Date() });
+        console.log(`✅ Compra registrada para usuário ${userId}`);
       }
     }
     res.status(200).send('OK');
   } catch (error) {
-    console.error('Erro no webhook:', error);
-    res.status(500).send('Erro no webhook');
+    console.error('Webhook error:', error);
+    res.status(500).send('Erro');
   }
 });
 
-// ========== ROTA DE AULAS (PROTEGIDA) ==========
 app.get('/api/aulas', (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Não autorizado' });
@@ -143,9 +137,7 @@ app.get('/api/aulas', (req, res) => {
     return res.status(403).json({ error: 'Token inválido' });
   }
   const hasPurchased = purchases.some(p => p.userId === userId && p.courseId === 'python-completo');
-  if (!hasPurchased) {
-    return res.status(403).json({ error: 'Acesso negado. Você precisa adquirir o curso.' });
-  }
+  if (!hasPurchased) return res.status(403).json({ error: 'Acesso negado' });
   const aulas = [
     { id: 1, titulo: 'Introdução ao Python', descricao: 'Instalação, primeiro programa e conceitos básicos.', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', duracao: '15min' },
     { id: 2, titulo: 'Variáveis e tipos de dados', descricao: 'Números, strings, booleanos, conversões.', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', duracao: '20min' },
@@ -156,11 +148,7 @@ app.get('/api/aulas', (req, res) => {
   res.json(aulas);
 });
 
-// ========== INICIALIZAÇÃO DO SERVIDOR (LOCAL) ==========
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
 
-// Exportação para deploy serverless (Vercel) – opcional
 export default app;
