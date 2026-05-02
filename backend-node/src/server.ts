@@ -86,9 +86,9 @@ app.post('/api/create-preference', async (req, res) => {
       items: [{ id: 'curso-python-completo', title: 'Curso Python Completo', quantity: 1, unit_price: 19.90, currency_id: 'BRL', description: 'Do zero ao avançado com projetos reais e correção automática.' }],
       payer: { email: 'comprador@exemplo.com' },
       back_urls: {
-        success: `${process.env.FRONTEND_URL}/cursos?success=true`,
+        success: `${process.env.FRONTEND_URL}/aulas?success=true`,
         failure: `${process.env.FRONTEND_URL}/cursos?canceled=true`,
-        pending: `${process.env.FRONTEND_URL}/cursos?canceled=true`
+        pending: `${process.env.FRONTEND_URL}/cursos?pending=true`,
       },
       auto_return: 'approved',
       external_reference: userId.toString(),
