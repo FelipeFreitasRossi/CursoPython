@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
-import { API_URL_DEV } from '../../config';
+import { API_URL } from '../../config';
 
 export default function Courses() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [buying, setBuying] = useState(false);
   const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+  const [messageType, setMessageType] = useState('');
 
   useEffect(() => {
     const success = searchParams.get('success');
@@ -17,23 +17,21 @@ export default function Courses() {
     if (success === 'true') {
       setMessageType('success');
       setMessage('Pagamento aprovado! Seu acesso foi liberado.');
-      window.history.replaceState({}, '', '/courses');
+      setTimeout(() => navigate('/profile'), 2000);
     } else if (canceled === 'true') {
       setMessageType('error');
       setMessage('Pagamento cancelado. Você pode tentar novamente.');
-      window.history.replaceState({}, '', '/courses');
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const course = {
-    id: 'python-completo',
     title: 'Python Completo',
     price: 19.90,
-    description: 'Do zero ao avançado com projetos reais e correção automática.',
+    description: 'Domine Python do zero ao avançado com projetos reais, exercícios corrigidos automaticamente e certificado.',
     features: [
       '80+ horas de vídeo',
       '150+ exercícios com correção automática',
-      'Projetos práticos (API, automação, análise de dados)',
+      'Projetos práticos: API, automação, análise de dados',
       'Certificado de conclusão',
       'Acesso vitalício'
     ]
@@ -41,26 +39,15 @@ export default function Courses() {
 
   const handleBuy = async () => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
+    if (!token) return navigate('/login');
     setBuying(true);
-    setMessage('');
-    setMessageType('');
     try {
-      const res = await axios.post(
-        `${API_URL_DEV}/api/create-preference`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (res.data.checkoutUrl) {
-        window.location.href = res.data.checkoutUrl;
-      } else {
-        throw new Error('URL de checkout não retornada');
-      }
+      const res = await axios.post(`${API_URL}/api/create-preference`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.checkoutUrl) window.location.href = res.data.checkoutUrl;
+      else throw new Error('Sem URL de checkout');
     } catch (err: any) {
-      console.error(err);
       setMessageType('error');
       setMessage(err.response?.data?.error || 'Erro ao iniciar pagamento. Tente mais tarde.');
     } finally {
@@ -71,41 +58,45 @@ export default function Courses() {
   return (
     <>
       <Navbar />
-      <div className="auth-page">
-        <div className="card" style={{ maxWidth: '600px' }}>
-          <h2 className="text-center" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>
-            {course.title}
-          </h2>
-          <p style={{ textAlign: 'center', color: '#475569', marginBottom: '1rem' }}>
-            {course.description}
-          </p>
-          <div style={{ textAlign: 'center', fontSize: '2.5rem', fontWeight: 'bold', color: '#1e3a5f', marginBottom: '1.5rem' }}>
-            R$ {course.price.toFixed(2)}
+      <div className="courses-page">
+        <div className="courses-header">
+          <div className="python-logo-header">
+            <img 
+              src="https://i.postimg.cc/3N8WrL4W/Logo-Python-removebg-preview.png" 
+              alt="Python Logo" 
+              style={{ height: '60px', marginBottom: '1rem' }}
+            />
           </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>O que você vai aprender:</h3>
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-              {course.features.map((feature, idx) => (
-                <li key={idx} style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: '#10b981' }}>✓</span> {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
-          {message && (
-            <div className={messageType === 'success' ? 'success-message' : 'error-message'}>
-              {message}
-            </div>
-          )}
-          <button
-            onClick={handleBuy}
-            disabled={buying}
-            className="btn btn-primary"
-            style={{ width: '100%' }}
-          >
-            {buying ? 'Processando...' : `Comprar agora - R$ ${course.price.toFixed(2)}`}
-          </button>
+          <h1>{course.title}</h1>
+          <p>Adquira agora e comece sua jornada</p>
         </div>
+        <div className="courses-grid">
+          <div className="course-card">
+            <div className="course-image">
+              <img 
+                src="https://i.postimg.cc/3N8WrL4W/Logo-Python-removebg-preview.png" 
+                alt="Python" 
+                style={{ width: '80px', filter: 'brightness(0) invert(1)' }}
+              />
+            </div>
+            <div className="course-content">
+              <h2 className="course-title">{course.title}</h2>
+              <p className="course-description">{course.description}</p>
+              <div className="course-price">R$ {course.price.toFixed(2)}</div>
+              <ul className="course-features">
+                {course.features.map((f, i) => <li key={i}>{f}</li>)}
+              </ul>
+              <button onClick={handleBuy} disabled={buying} className="btn-buy">
+                {buying ? 'Processando...' : 'Comprar agora'}
+              </button>
+            </div>
+          </div>
+        </div>
+        {message && (
+          <div className={`message-box ${messageType === 'success' ? 'success' : 'error'}`}>
+            {message}
+          </div>
+        )}
       </div>
     </>
   );

@@ -17,6 +17,6 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["react", "react-dom", "vite/client"]
   },
-  "include": ["src"],
+  "include": ["src", "postcss.config.cjs"],
   "exclude": ["node_modules", "dist"]
 }

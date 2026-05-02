@@ -4,9 +4,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Courses from './pages/Courses';
-import ProtectedRoute from './components/ProtectedRoute';
 import Aulas from './pages/Aulas';
-
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -15,30 +14,9 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/courses"
-          element={
-            <ProtectedRoute>
-              <Courses />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/aulas"
-          element={
-            <ProtectedRoute>
-              <Aulas />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+        <Route path="/aulas" element={<ProtectedRoute><Aulas /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

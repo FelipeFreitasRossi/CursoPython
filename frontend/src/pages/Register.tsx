@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import Navbar from '../components/Navbar';
-import { API_URL_DEV } from '../../config';
+import { API_URL } from '../../config';
 
 export default function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,78 +15,76 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setError('As senhas não coincidem');
-      return;
-    }
+    if (!name.trim()) return setError('Nome é obrigatório');
+    if (password !== confirmPassword) return setError('As senhas não coincidem');
     setLoading(true);
     setError('');
     try {
-      const res = await axios.post(`${API_URL_DEV}/api/register`, { email, password });
+      const res = await axios.post(`${API_URL}/api/register`, { name, email, password });
       localStorage.setItem('token', res.data.token);
-      setSuccess('Cadastro realizado com sucesso! Redirecionando...');
+      setSuccess('Cadastro realizado! Redirecionando...');
       setTimeout(() => navigate('/profile'), 1500);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Erro no cadastro. Tente outro e-mail.');
+      setError(err.response?.data?.error || 'Erro no cadastro');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <Navbar />
-      <div className="auth-page">
-        <div className="card">
-          <h2 className="text-center" style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Criar conta</h2>
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>Criar conta</h2>
+          <p>Preencha seus dados para começar</p>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Nome completo"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Confirmar senha"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="email">E-mail</label>
-              <input
-                id="email"
-                type="email"
-                className="form-input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="seu@email.com"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Senha</label>
-              <input
-                id="password"
-                type="password"
-                className="form-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="mínimo 6 caracteres"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirmar senha</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                className="form-input"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                placeholder="digite novamente"
-              />
-            </div>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Processando...' : 'Cadastrar'}
-            </button>
-          </form>
-          <p className="text-center mt-4" style={{ fontSize: '0.9rem' }}>
-            Já possui conta? <Link to="/login" style={{ color: '#3776AB', fontWeight: 500 }}>Fazer login</Link>
-          </p>
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? 'Processando...' : 'Cadastrar'}
+          </button>
+        </form>
+        <div className="auth-footer">
+          Já possui conta? <Link to="/login">Fazer login</Link>
         </div>
       </div>
-    </>
+    </div>
   );
 }

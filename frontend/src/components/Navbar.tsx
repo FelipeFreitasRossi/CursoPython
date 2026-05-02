@@ -24,14 +24,12 @@ export default function Navbar() {
             />
             <span>PythonPro</span>
           </div>
-
-          {/* Links Desktop */}
           <ul className="nav-links desktop-nav">
             <li><Link to="/">Início</Link></li>
             {token ? (
               <>
+                <li><Link to="/profile">Dashboard</Link></li>
                 <li><Link to="/courses">Cursos</Link></li>
-                <li><Link to="/profile">Perfil</Link></li>
                 <li><button onClick={handleLogout} className="link-button">Sair</button></li>
               </>
             ) : (
@@ -41,8 +39,6 @@ export default function Navbar() {
               </>
             )}
           </ul>
-
-          {/* Botão Hamburguer (mobile) */}
           <button className="hamburguer" onClick={() => setMenuAberto(!menuAberto)}>
             <span className="bar"></span>
             <span className="bar"></span>
@@ -50,16 +46,14 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
-
-      {/* Menu Lateral Mobile */}
       <div className={`mobile-menu ${menuAberto ? 'aberto' : ''}`}>
         <button className="close-menu" onClick={() => setMenuAberto(false)}>✕</button>
         <ul>
           <li><Link to="/" onClick={() => setMenuAberto(false)}>Início</Link></li>
           {token ? (
             <>
+              <li><Link to="/profile" onClick={() => setMenuAberto(false)}>Dashboard</Link></li>
               <li><Link to="/courses" onClick={() => setMenuAberto(false)}>Cursos</Link></li>
-              <li><Link to="/profile" onClick={() => setMenuAberto(false)}>Perfil</Link></li>
               <li><button className="btn-aluno-mobile" onClick={handleLogout}>Sair</button></li>
             </>
           ) : (
