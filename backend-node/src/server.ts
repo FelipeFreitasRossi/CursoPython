@@ -11,19 +11,39 @@ const app = express();
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret_in_production';
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! });
 
-const users: any[] = [];
-const purchases: { userId: number; courseId: string; date: Date }[] = [];
+// Estrutura dos dados em memória (substitua por banco de dados em produção)
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+}
+const users: User[] = [];
 
-// 🔥 CORS CORRETO PARA PRODUÇÃO
+interface Purchase {
+  userId: number;
+  courseId: string;
+  date: Date;
+}
+const purchases: Purchase[] = [];
+
+// ========== MIDDLEWARES ==========
 const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:5173',
   'https://cursopython.vercel.app',
   'https://cursopython-97q6.onrender.com',
-  'http://localhost:5173',
   'http://localhost:3001'
 ];
 
 app.use(cors({
-  origin: true,  // permite qualquer origem (apenas para testes)
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`❌ CORS bloqueado para: ${origin}`);
+      callback(new Error('Origin not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -31,27 +51,41 @@ app.use(cors({
 
 app.use(express.json());
 
-// ========== ROTAS ==========
+// ========== ROTAS DE AUTENTICAÇÃO ==========
 app.post('/api/register', async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+  }
   if (users.find(u => u.email === email)) {
     return res.status(400).json({ error: 'Email já cadastrado' });
   }
-  const hashed = await bcrypt.hash(password, 10);
-  const user = { id: users.length + 1, email, password: hashed };
-  users.push(user);
-  const token = jwt.sign({ id: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
-  res.json({ token, user: { id: user.id, email } });
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newUser: User = {
+    id: users.length + 1,
+    name,
+    email,
+    password: hashedPassword,
+  };
+  users.push(newUser);
+  const token = jwt.sign({ id: newUser.id, email }, JWT_SECRET, { expiresIn: '7d' });
+  res.status(201).json({
+    token,
+    user: { id: newUser.id, name: newUser.name, email: newUser.email }
+  });
 });
 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   const user = users.find(u => u.email === email);
   if (!user) return res.status(401).json({ error: 'Credenciais inválidas' });
-  const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return res.status(401).json({ error: 'Credenciais inválidas' });
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) return res.status(401).json({ error: 'Credenciais inválidas' });
   const token = jwt.sign({ id: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
-  res.json({ token, user: { id: user.id, email } });
+  res.json({
+    token,
+    user: { id: user.id, name: user.name, email: user.email }
+  });
 });
 
 app.get('/api/profile', (req, res) => {
@@ -59,49 +93,64 @@ app.get('/api/profile', (req, res) => {
   if (!authHeader) return res.status(401).json({ error: 'Token não fornecido' });
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: number; email: string };
     const user = users.find(u => u.id === decoded.id);
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
     const hasPurchased = purchases.some(p => p.userId === user.id && p.courseId === 'python-completo');
-    res.json({ id: user.id, email: user.email, hasPurchased });
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      hasPurchased
+    });
   } catch {
     res.status(403).json({ error: 'Token inválido' });
   }
 });
 
+// ========== PAGAMENTO – MERCADO PAGO ==========
 app.post('/api/create-preference', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Não autorizado' });
   const token = authHeader.split(' ')[1];
   let userId: number;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: number; email: string };
     userId = decoded.id;
   } catch {
     return res.status(403).json({ error: 'Token inválido' });
   }
+
   try {
     const preference = new Preference(client);
     const body = {
-      items: [{ id: 'curso-python-completo', title: 'Curso Python Completo', quantity: 1, unit_price: 19.90, currency_id: 'BRL', description: 'Do zero ao avançado com projetos reais e correção automática.' }],
+      items: [{
+        id: 'curso-python-completo',
+        title: 'Curso Python Completo',
+        quantity: 1,
+        unit_price: 19.90,
+        currency_id: 'BRL',
+        description: 'Do zero ao avançado com projetos reais e correção automática.'
+      }],
       payer: { email: 'comprador@exemplo.com' },
       back_urls: {
-        success: `${process.env.FRONTEND_URL}/aulas?success=true`,
-        failure: `${process.env.FRONTEND_URL}/cursos?canceled=true`,
-        pending: `${process.env.FRONTEND_URL}/cursos?pending=true`,
+        success: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/aulas?success=true`,
+        failure: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/courses?canceled=true`,
+        pending: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/courses?pending=true`
       },
       auto_return: 'approved',
       external_reference: userId.toString(),
-      notification_url: `${process.env.WEBHOOK_URL}/webhook`
+      notification_url: `${process.env.WEBHOOK_URL || 'https://seudominio.com'}/webhook`
     };
     const response = await preference.create({ body });
     res.json({ checkoutUrl: response.init_point });
   } catch (error: any) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    console.error('Erro ao criar preferência:', error);
+    res.status(500).json({ error: error.message || 'Erro ao criar sessão de pagamento' });
   }
 });
 
+// ========== WEBHOOK ==========
 app.post('/webhook', express.json(), async (req, res) => {
   try {
     const { type, data } = req.body;
@@ -109,30 +158,35 @@ app.post('/webhook', express.json(), async (req, res) => {
       const payment = await new Payment(client).get({ id: data.id });
       if (payment.status === 'approved') {
         const userId = parseInt(payment.external_reference!);
-        purchases.push({ userId, courseId: 'python-completo', date: new Date() });
-        console.log(`✅ Compra registrada para usuário ${userId}`);
+        if (!isNaN(userId)) {
+          purchases.push({ userId, courseId: 'python-completo', date: new Date() });
+          console.log(`✅ Pagamento confirmado para o usuário ${userId}`);
+        }
       }
     }
     res.status(200).send('OK');
   } catch (error) {
-    console.error('Webhook error:', error);
-    res.status(500).send('Erro');
+    console.error('Erro no webhook:', error);
+    res.status(500).send('Erro no webhook');
   }
 });
 
+// ========== ROTA DE AULAS (PROTEGIDA) ==========
 app.get('/api/aulas', (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Não autorizado' });
   const token = authHeader.split(' ')[1];
   let userId: number;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: number; email: string };
     userId = decoded.id;
   } catch {
     return res.status(403).json({ error: 'Token inválido' });
   }
   const hasPurchased = purchases.some(p => p.userId === userId && p.courseId === 'python-completo');
-  if (!hasPurchased) return res.status(403).json({ error: 'Acesso negado' });
+  if (!hasPurchased) {
+    return res.status(403).json({ error: 'Acesso negado. Você precisa adquirir o curso.' });
+  }
   const aulas = [
     { id: 1, titulo: 'Introdução ao Python', descricao: 'Instalação, primeiro programa e conceitos básicos.', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', duracao: '15min' },
     { id: 2, titulo: 'Variáveis e tipos de dados', descricao: 'Números, strings, booleanos, conversões.', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', duracao: '20min' },
@@ -143,7 +197,10 @@ app.get('/api/aulas', (req, res) => {
   res.json(aulas);
 });
 
+// ========== INICIALIZAÇÃO ==========
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
+});
 
 export default app;
