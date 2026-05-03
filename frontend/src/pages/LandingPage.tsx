@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import SocialBar from '../components/SocialBar';
 import './LandingPage.css';
 
 export default function LandingPage() {
@@ -9,9 +10,7 @@ export default function LandingPage() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('ativo');
-          }
+          if (entry.isIntersecting) entry.target.classList.add('ativo');
         });
       },
       { threshold: 0.2 }
@@ -27,9 +26,7 @@ export default function LandingPage() {
     }
 
     return () => {
-      if (scrollRevealRef.current) {
-        scrollRevealRef.current.disconnect();
-      }
+      if (scrollRevealRef.current) scrollRevealRef.current.disconnect();
       document.body.classList.remove('menu-open');
     };
   }, [menuAberto]);
@@ -37,19 +34,8 @@ export default function LandingPage() {
   const scrollToSection = (id: string) => {
     setMenuAberto(false);
     const section = document.getElementById(id);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (section) section.scrollIntoView({ behavior: 'smooth' });
   };
-
-  const modulosData = [
-    { img: "https://i.postimg.cc/RZnxjcsV/Foto1.png", titulo: "Fundamentos", descricao: "Variáveis, tipos de dados, condicionais, loops, funções e boas práticas." },
-    { img: "https://i.postimg.cc/MKvCQ787/Foto2.png", titulo: "Estruturas de dados", descricao: "Listas, tuplas, dicionários, conjuntos, list comprehensions e muito mais." },
-    { img: "https://i.postimg.cc/dtpzmhqN/Foto3.png", titulo: "Arquivos e módulos", descricao: "Leitura/escrita de arquivos, criação de módulos, pacotes e __name__." },
-    { img: "https://i.postimg.cc/zX69SyzD/Foto4.png", titulo: "Programação orientada a objetos", descricao: "Classes, herança, polimorfismo, encapsulamento e métodos especiais." },
-    { img: "https://i.postimg.cc/QMrwwvKQ/Foto5.png", titulo: "APIs e web scraping", descricao: "Requisições HTTP, APIs REST, BeautifulSoup, Selenium básico." },
-    { img: "https://i.postimg.cc/HL4Rg3bF/Foto6.png", titulo: "Análise de dados", descricao: "Pandas, NumPy, Matplotlib, visualização de dados e storytelling." }
-  ];
 
   return (
     <div className="landing-page">
@@ -85,6 +71,7 @@ export default function LandingPage() {
         </ul>
       </div>
 
+      {/* Hero */}
       <section id="home" className="hero reveal">
         <div className="container hero-content">
           <div className="hero-text">
@@ -100,38 +87,29 @@ export default function LandingPage() {
               <span>🛜 Acesso vitalício</span>
             </div>
           </div>
-          <div className="hero-image desktop-only"><div className="python-illustration"></div></div>
+          <div className="hero-image desktop-only">
+            <div className="python-illustration"></div>
+          </div>
         </div>
       </section>
 
+      {/* Módulos */}
       <section id="modulos" className="modulos reveal">
         <div className="container">
           <h2>Conteúdo completo</h2>
           <p className="section-subtitle">Do básico ao desenvolvimento de sistemas reais</p>
-          <div className="modulos-desktop">
-            <div className="modulos-imagens">
-              {modulosData.map((modulo, idx) => (
-                <div key={idx} className="modulo-imagem-item"><img src={modulo.img} alt={modulo.titulo} /></div>
-              ))}
-            </div>
-            <div className="modulos-textos">
-              {modulosData.map((modulo, idx) => (
-                <div key={idx} className="modulo-texto-item"><h3>{modulo.titulo}</h3><p>{modulo.descricao}</p></div>
-              ))}
-            </div>
-          </div>
-          <div className="modulos-mobile">
-            {modulosData.map((modulo, idx) => (
-              <div key={idx} className="modulo-card-mobile">
-                <img src={modulo.img} alt={modulo.titulo} className="modulo-img-mobile" />
-                <h3>{modulo.titulo}</h3>
-                <p>{modulo.descricao}</p>
-              </div>
-            ))}
+          <div className="modulos-grid">
+            <div className="modulo-card"><div className="modulo-icon">📘</div><h3>Fundamentos</h3><p>Variáveis, tipos de dados, condicionais, loops, funções e boas práticas.</p></div>
+            <div className="modulo-card"><div className="modulo-icon">🗃️</div><h3>Estruturas de dados</h3><p>Listas, tuplas, dicionários, conjuntos, list comprehensions e muito mais.</p></div>
+            <div className="modulo-card"><div className="modulo-icon">📁</div><h3>Arquivos e módulos</h3><p>Leitura/escrita de arquivos, criação de módulos, pacotes e __name__.</p></div>
+            <div className="modulo-card"><div className="modulo-icon">⚙️</div><h3>Programação orientada a objetos</h3><p>Classes, herança, polimorfismo, encapsulamento e métodos especiais.</p></div>
+            <div className="modulo-card"><div className="modulo-icon">🌐</div><h3>APIs e web scraping</h3><p>Requisições HTTP, APIs REST, BeautifulSoup, Selenium básico.</p></div>
+            <div className="modulo-card"><div className="modulo-icon">📊</div><h3>Análise de dados</h3><p>Pandas, NumPy, Matplotlib, visualização de dados e storytelling.</p></div>
           </div>
         </div>
       </section>
 
+      {/* Diferenciais */}
       <section id="diferenciais" className="diferenciais reveal">
         <div className="container">
           <h2>Por que este curso é diferente?</h2>
@@ -143,6 +121,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Dores (alternado) */}
       <section id="porque-aprender" className="porque-aprender reveal">
         <div className="container">
           <h2>Você já sentiu alguma dessas dores?</h2>
@@ -158,14 +137,15 @@ export default function LandingPage() {
             <div className="dor-item imagem"><img src="https://i.postimg.cc/QMRKkkFR/Foto4.png" alt="Dependência de ferramentas pagas" /></div>
           </div>
           <div className="dores-grid-mobile">
-            <div className="dor-card"><img src="https://i.postimg.cc/gJCyjbyd/Foto1.png" alt="Tarefas manuais repetitivas" className="dor-image" /><h3>Tarefas manuais repetitivas</h3><p>Planilhas, renomear arquivos, enviar e-mails, baixar dados… horas perdidas toda semana. Com Python, você automatiza tudo em minutos.</p></div>
-            <div className="dor-card"><img src="https://i.postimg.cc/pLLj2dNC/Foto2.png" alt="Dados bagunçados e sem análise" className="dor-image" /><h3>Dados bagunçados e sem análise</h3><p>Você tem informações, mas não consegue extrair insights. Python organiza, limpa e gera gráficos que impressionam qualquer gestor.</p></div>
-            <div className="dor-card"><img src="https://i.postimg.cc/rsTd7VCr/Foto3.png" alt="Falta de oportunidades na carreira" className="dor-image" /><h3>Falta de oportunidades na carreira</h3><p>As vagas mais quentes do mercado (dados, IA, backend, automação) exigem Python. Aprender agora é abrir portas para empregos de alto valor.</p></div>
-            <div className="dor-card"><img src="https://i.postimg.cc/QMRKkkFR/Foto4.png" alt="Dependência de ferramentas pagas" className="dor-image" /><h3>Dependência de ferramentas pagas</h3><p>Excel avançado, Power BI, softwares proprietários… Python é gratuito e ilimitado, faz tudo isso e muito mais sem custos extras.</p></div>
+            <div className="dor-card"><img src="https://i.postimg.cc/gJCyjbyd/Foto1.png" className="dor-image" /><h3>Tarefas manuais repetitivas</h3><p>Planilhas, renomear arquivos, enviar e-mails, baixar dados… horas perdidas toda semana. Com Python, você automatiza tudo em minutos.</p></div>
+            <div className="dor-card"><img src="https://i.postimg.cc/pLLj2dNC/Foto2.png" className="dor-image" /><h3>Dados bagunçados e sem análise</h3><p>Você tem informações, mas não consegue extrair insights. Python organiza, limpa e gera gráficos que impressionam qualquer gestor.</p></div>
+            <div className="dor-card"><img src="https://i.postimg.cc/rsTd7VCr/Foto3.png" className="dor-image" /><h3>Falta de oportunidades na carreira</h3><p>As vagas mais quentes do mercado (dados, IA, backend, automação) exigem Python. Aprender agora é abrir portas para empregos de alto valor.</p></div>
+            <div className="dor-card"><img src="https://i.postimg.cc/QMRKkkFR/Foto4.png" className="dor-image" /><h3>Dependência de ferramentas pagas</h3><p>Excel avançado, Power BI, softwares proprietários… Python é gratuito e ilimitado, faz tudo isso e muito mais sem custos extras.</p></div>
           </div>
         </div>
       </section>
 
+      {/* Depoimentos */}
       <section id="depoimentos" className="depoimentos reveal">
         <div className="container">
           <h2>O que nossos alunos dizem</h2>
@@ -177,6 +157,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* FAQ */}
       <section id="faq" className="faq reveal">
         <div className="container">
           <h2>Perguntas frequentes</h2>
@@ -188,6 +169,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* CTA */}
       <section className="cta reveal">
         <div className="container">
           <h2>Pronto para dominar Python?</h2>
@@ -196,6 +178,10 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Redes sociais */}
+      <SocialBar />
+
+      {/* Footer */}
       <footer className="footer">
         <div className="container">
           <p>© 2026 PythonPro. Todos os direitos reservados.</p>
