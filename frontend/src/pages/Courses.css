@@ -1,0 +1,61 @@
+.payment-page {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(145deg, #f8fafc 0%, #eef2ff 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+.payment-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  animation: fadeInUp 0.5s ease-out;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.payment-card {
+  background: white;
+  border-radius: 2rem;
+  box-shadow: 0 25px 45px -12px rgba(0,0,0,0.2);
+  padding: 2rem 1.8rem;
+  transition: transform 0.3s;
+}
+.payment-card:hover { transform: translateY(-8px); }
+.payment-header { text-align: center; margin-bottom: 1.5rem; }
+.payment-logo { height: 70px; margin-bottom: 1rem; }
+.payment-header h1 { font-size: 1.9rem; font-weight: 800; color: #0f172a; }
+.payment-description { color: #475569; font-size: 0.95rem; }
+.payment-price { text-align: center; margin: 1.5rem 0; }
+.price-currency { font-size: 1.5rem; font-weight: 600; vertical-align: super; }
+.price-value { font-size: 3.5rem; font-weight: 800; color: #1e3a5f; }
+.payment-features { list-style: none; padding: 0; margin: 1.5rem 0; }
+.payment-features li { display: flex; align-items: center; gap: 0.8rem; font-size: 0.95rem; margin-bottom: 0.8rem; }
+.feature-icon { background: #eef2ff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #2c5d8f; margin-right: 0.5rem; }
+.payment-button {
+  width: 100%;
+  background: linear-gradient(135deg, #3776AB, #2c5d8f);
+  color: white;
+  border: none;
+  border-radius: 60px;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 8px 16px -6px rgba(55,118,171,0.3);
+}
+.payment-button:hover:not(:disabled) { transform: scale(0.98); background: linear-gradient(135deg, #2c5d8f, #1e4a6e); }
+.payment-button:disabled { opacity: 0.7; }
+.payment-guarantee { text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 1rem; }
+.payment-message { margin: 1rem 0; padding: 0.8rem; border-radius: 1rem; text-align: center; font-weight: 500; }
+.payment-message.success { background: #dcfce7; color: #166534; border-left: 4px solid #16a34a; }
+.payment-message.error { background: #fee2e2; color: #991b1b; border-left: 4px solid #dc2626; }
+@media (max-width: 640px) {
+  .payment-card { padding: 1.5rem; }
+  .payment-header h1 { font-size: 1.6rem; }
+  .price-value { font-size: 2.8rem; }
+  .payment-logo { height: 55px; }
+}

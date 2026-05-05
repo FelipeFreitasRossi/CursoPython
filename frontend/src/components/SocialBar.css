@@ -1,8 +1,14 @@
-/* Social Bar – estilo escuro com tooltips responsivo */
+/* SocialBar – fixo na parte inferior (sticky) */
 .social-bar-container {
+  position: sticky;
+  bottom: 0;                /* gruda na parte inferior da viewport */
   display: flex;
   justify-content: center;
-  margin: 2rem 0 1rem;
+  z-index: 10;
+  background: transparent;
+  pointer-events: none;     /* permite clicar através do container */
+  margin: 0;
+  padding: 0;
 }
 
 .social-bar {
@@ -11,42 +17,19 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.8rem;
-  background-color: #0f172a; /* azul escuro, combina com o tema */
+  background-color: #0f172a;
   border-radius: 50px;
   padding: 0.8rem 1.5rem;
-  margin: 0;
+  margin-bottom: 1rem;
   list-style: none;
   width: auto;
-  max-width: 100%;
+  max-width: 90%;
+  pointer-events: auto;     /* os links ficam clicáveis */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .social-bar .icon-content {
   position: relative;
-}
-
-.social-bar .tooltip {
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #fff;
-  color: #0f172a;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.2s ease;
-  pointer-events: none;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.social-bar .icon-content:hover .tooltip {
-  opacity: 1;
-  visibility: visible;
-  top: -40px;
 }
 
 .social-bar .link {
@@ -55,16 +38,12 @@
   align-items: center;
   width: 44px;
   height: 44px;
+  background-color: #1e293b;
   border-radius: 50%;
   color: #ffffff;
-  background-color: #1e293b;
+  font-size: 1.4rem;
   transition: all 0.2s ease;
-}
-
-.social-bar .link svg {
-  width: 22px;
-  height: 22px;
-  fill: currentColor;
+  text-decoration: none;
 }
 
 .social-bar .link:hover {
@@ -72,41 +51,55 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Cores específicas por rede social */
-.social-bar .link[data-social="spotify"]:hover {
-  color: #1db954;
-  background-color: #1e293b;
+/* Cores individuais no hover */
+.social-bar .link[data-social="whatsapp"]:hover { color: #25d366; }
+.social-bar .link[data-social="instagram"]:hover { color: #d6249f; }
+.social-bar .link[data-social="linkedin"]:hover { color: #0a66c2; }
+.social-bar .link[data-social="email"]:hover { color: #ea4335; }
+
+/* Tooltip */
+.social-bar .tooltip {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: #0f172a;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s;
+  pointer-events: none;
+  font-weight: 600;
 }
-.social-bar .link[data-social="pinterest"]:hover {
-  color: #e60023;
-}
-.social-bar .link[data-social="dribbble"]:hover {
-  color: #ea4c89;
-}
-.social-bar .link[data-social="telegram"]:hover {
-  color: #26a5e4;
+
+.social-bar .icon-content:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  bottom: 45px;
 }
 
 /* Responsividade */
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .social-bar {
-    padding: 0.6rem 1rem;
     gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.8rem;
   }
   .social-bar .link {
     width: 38px;
     height: 38px;
-  }
-  .social-bar .link svg {
-    width: 18px;
-    height: 18px;
+    font-size: 1.2rem;
   }
   .social-bar .tooltip {
     font-size: 10px;
     padding: 3px 6px;
-    top: -28px;
+    bottom: 45px;
   }
   .social-bar .icon-content:hover .tooltip {
-    top: -35px;
+    bottom: 40px;
   }
 }
