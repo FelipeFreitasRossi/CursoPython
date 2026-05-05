@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
-import Auth from './pages/Auth';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Courses from './pages/Courses';
 import Aulas from './pages/Aulas';
@@ -11,32 +12,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Auth />} />
-        <Route path="/register" element={<Navigate to="/login" replace />} />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/courses"
-          element={
-            <ProtectedRoute>
-              <Courses />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/aulas"
-          element={
-            <ProtectedRoute>
-              <Aulas />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+        <Route path="/aulas" element={<ProtectedRoute><Aulas /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );
