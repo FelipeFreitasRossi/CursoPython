@@ -181,16 +181,6 @@ body {
   margin-bottom: 2rem;
   flex-wrap: wrap;
 }
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 2rem;
-  text-decoration: none;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-block;
-}
 .btn-primary {
   background-color: #3776AB;
   color: white;
@@ -607,9 +597,6 @@ body {
 .main-content {
   flex: 1;
 }
-.social-bar-container {
-  margin: 2rem 0 0;
-}
 
 /* ========== KEYFRAMES (todos no final) ========== */
 @keyframes floatIcon {
@@ -622,7 +609,7 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* ========== RESPONSIVIDADE GERAL ========== */
+/* ========== RESPONSIVIDADE ========== */
 @media (max-width: 1024px) {
   .diferenciais-grid {
     grid-template-columns: repeat(2, 1fr);
