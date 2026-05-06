@@ -13,21 +13,37 @@ export default function Courses() {
   const [buying, setBuying] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [hasPurchased, setHasPurchased] = useState(false);
+
+  // Verifica se usuário já comprou
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    axios
+      .get(`${API_URL}/api/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setHasPurchased(res.data.hasPurchased);
+        if (res.data.hasPurchased) {
+          // Se já comprou, redireciona para o perfil
+          navigate('/profile', { replace: true });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [navigate]);
 
   useEffect(() => {
     const success = searchParams.get('success');
     const canceled = searchParams.get('canceled');
-    const pending = searchParams.get('pending');
-
     if (success === 'true') {
       setMessage('✅ Pagamento aprovado! Redirecionando para seu perfil...');
-      setTimeout(() => navigate('/profile'), 2000);
+      setTimeout(() => navigate('/profile', { replace: true }), 2000);
     } else if (canceled === 'true') {
       setMessageType('error');
       setMessage('❌ Pagamento cancelado. Você pode tentar novamente.');
-    } else if (pending === 'true') {
-      setMessageType('error');
-      setMessage('⏳ Pagamento pendente. Aguarde a confirmação.');
     }
   }, [searchParams, navigate]);
 
@@ -70,6 +86,8 @@ export default function Courses() {
       setBuying(false);
     }
   };
+
+  if (loading) return <div className="loading-screen">Carregando...</div>;
 
   return (
     <>

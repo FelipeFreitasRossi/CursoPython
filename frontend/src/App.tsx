@@ -13,9 +13,30 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Auth />} />
         <Route path="/register" element={<Navigate to="/login" replace />} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-        <Route path="/aulas" element={<ProtectedRoute><Aulas /></ProtectedRoute>} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/courses"
+          element={
+            <ProtectedRoute>
+              <Courses />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/aulas"
+          element={
+            <ProtectedRoute>
+              <Aulas />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

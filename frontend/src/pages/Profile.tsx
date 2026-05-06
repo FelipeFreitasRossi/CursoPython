@@ -29,12 +29,32 @@ const getDicaDoDia = () => {
 };
 
 export default function Profile() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
+  // ===== Theme (claro/escuro) =====
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme === 'dark' ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  // ===== Objetivos persistentes =====
   const [goals, setGoals] = useState(() => {
     const saved = localStorage.getItem('dashboard_goals');
     if (saved) return JSON.parse(saved);
@@ -46,8 +66,8 @@ export default function Profile() {
     ];
   });
 
-  const toggleGoal = (index: number) => {
-    setGoals((prev: any[]) => {
+  const toggleGoal = (index) => {
+    setGoals((prev) => {
       const newGoals = [...prev];
       newGoals[index] = { ...newGoals[index], done: !newGoals[index].done };
       localStorage.setItem('dashboard_goals', JSON.stringify(newGoals));
@@ -55,6 +75,7 @@ export default function Profile() {
     });
   };
 
+  // ===== Streak (sequência de estudos) =====
   const [streak, setStreak] = useState(() => {
     const stored = localStorage.getItem('dashboard_streak');
     return stored ? parseInt(stored) : 0;
@@ -63,7 +84,7 @@ export default function Profile() {
   const [popupMessage, setPopupMessage] = useState('');
   const [popupVisible, setPopupVisible] = useState(false);
 
-  const showPopup = (message: string, duration = 3000) => {
+  const showPopup = (message, duration = 3000) => {
     setPopupMessage(message);
     setPopupVisible(true);
     setTimeout(() => setPopupVisible(false), duration);
@@ -102,6 +123,7 @@ export default function Profile() {
     localStorage.setItem('dica_text', newDica);
   };
 
+  // ===== Dados do backend =====
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -130,7 +152,7 @@ export default function Profile() {
   if (error) return <div className="error-screen">{error}</div>;
 
   const firstName = user?.name?.split(' ')[0] || 'Aluno';
-  const initials = user?.name?.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase() || 'AL';
+  const initials = user?.name?.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() || 'AL';
   const progressPercentage = user?.hasPurchased ? 35 : 0;
 
   const modules = [
@@ -141,12 +163,13 @@ export default function Profile() {
     { id: 5, title: 'Módulo 5 — Projeto Final', lessons: 5, hours: '2h', state: 'locked' },
   ];
 
-  const moduleStateIcon = (state: string) => (state === 'done' ? '✅' : state === 'active' ? '▶' : '🔒');
-  const moduleStateLabel = (state: string) => (state === 'done' ? 'Concluído' : state === 'active' ? 'Em progresso' : 'Bloqueado');
+  const moduleStateIcon = (state) => (state === 'done' ? '✅' : state === 'active' ? '▶' : '🔒');
+  const moduleStateLabel = (state) => (state === 'done' ? 'Concluído' : state === 'active' ? 'Em progresso' : 'Bloqueado');
 
   return (
     <div className="dash">
       {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+
       <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-logo">
           <div className="logo-icon">🐍</div>
@@ -183,13 +206,24 @@ export default function Profile() {
             <button className={`hamburger ${sidebarOpen ? 'active' : ''}`} onClick={() => setSidebarOpen(!sidebarOpen)}>
               <span className="bar"></span><span className="bar"></span><span className="bar"></span>
             </button>
-            <div className="greeting"><h1>Olá, {firstName} 👋</h1><p>{user.hasPurchased ? 'Continue de onde parou!' : 'Adquira o curso para começar.'}</p></div>
+            <div className="greeting">
+              <h1>Olá, {firstName} 👋</h1>
+              <p>{user.hasPurchased ? 'Continue de onde parou!' : 'Adquira o curso para começar.'}</p>
+            </div>
           </div>
           <div className="topbar-right">
-            {user.hasPurchased ? <Link to="/aulas" className="btn-continue">▶ Estudar</Link> : <Link to="/courses" className="btn-continue btn-buy">🛒 Adquirir</Link>}
+            {user.hasPurchased ? (
+              <Link to="/aulas" className="btn-continue">▶ Estudar</Link>
+            ) : (
+              <Link to="/courses" className="btn-continue btn-buy">🛒 Adquirir</Link>
+            )}
+            <button onClick={toggleTheme} className="theme-toggle">
+              {theme === 'light' ? '🌙 Modo escuro' : '☀️ Modo claro'}
+            </button>
           </div>
         </header>
 
+        {/* Stats row */}
         <section className="stats-row">
           <div className="stat-card"><div className="stat-icon-wrap">📖</div><div className="stat-label">Aulas</div><div className="stat-value">{user.hasPurchased ? '14' : '0'}</div><div className="stat-badge badge-blue">{user.hasPurchased ? '+2' : 'Nenhuma'}</div></div>
           <div className="stat-card"><div className="stat-icon-wrap">⏱</div><div className="stat-label">Horas</div><div className="stat-value">{user.hasPurchased ? '8h' : '0h'}</div><div className="stat-badge badge-green">Meta: 10h</div></div>
@@ -207,8 +241,9 @@ export default function Profile() {
               <div className="course-meta-row"><span className="meta-chip">📚 5 módulos</span><span className="meta-chip">📄 37 aulas</span><span className="meta-chip">⏱ 15h</span><span className="meta-chip">🏅 Certificado</span></div>
               <div className="course-card-actions">{user.hasPurchased ? <Link to="/aulas" className="btn-primary-action">▶ Continuar</Link> : <Link to="/courses" className="btn-primary-action btn-buy-action">🛒 Adquirir</Link>}</div>
             </div>
+
             <div className="modules-list">
-              {modules.map(mod => (
+              {modules.map((mod) => (
                 <div key={mod.id} className={`module-item mod-${mod.state}`} onClick={() => mod.state !== 'locked' && navigate('/aulas')} style={{ cursor: mod.state !== 'locked' ? 'pointer' : 'not-allowed' }}>
                   <div className={`mod-icon-box mod-icon-${mod.state}`}>{moduleStateIcon(mod.state)}</div>
                   <div className="mod-info"><div className="mod-title">{mod.title}</div><div className="mod-sub">{mod.lessons} aulas · {mod.hours}</div></div>
@@ -220,26 +255,32 @@ export default function Profile() {
 
           <div className="col-right">
             <div className="widget-card">
-              <div className="avatar-lg">{initials}</div><div className="profile-name">{user.name}</div><div className="profile-email">{user.email}</div><div className="profile-id">ID #{user.id}</div>
+              <div className="avatar-lg">{initials}</div>
+              <div className="profile-name">{user.name}</div>
+              <div className="profile-email">{user.email}</div>
+              <div className="profile-id">ID #{user.id}</div>
               <div className={`plan-pill ${user.hasPurchased ? 'plan-active' : 'plan-none'}`}>{user.hasPurchased ? '🎓 Plano Completo' : '⛔ Sem plano'}</div>
               <div className="profile-stats-grid"><div className="pstat"><div className="pstat-val">{user.hasPurchased ? '14' : '0'}</div><div className="pstat-label">Aulas</div></div><div className="pstat"><div className="pstat-val">{user.hasPurchased ? '3' : '0'}</div><div className="pstat-label">Exercícios</div></div></div>
               <button className="btn-logout-widget" onClick={handleLogout}>Sair</button>
             </div>
+
             <div className="widget-card">
               <div className="streak-top"><div className="streak-label-top">Sequência</div><div className="streak-num">{streak} dias 🔥</div></div>
               <div className="streak-days">{weekDays.map((day, i) => <div key={i} className={`day-dot ${streakDaysArray[i] ? 'day-done' : 'day-miss'}`}>{day}</div>)}</div>
               <button onClick={registerStudyDay} className="btn-study-today">✅ Estudei hoje</button>
               <p className="streak-hint">Registre seus dias de estudo!</p>
             </div>
+
             <div className="widget-card">
               <div className="section-label">Objetivos</div>
-              {goals.map((goal: any, i: number) => (
+              {goals.map((goal, i) => (
                 <div key={i} className="goal-row" onClick={() => toggleGoal(i)}>
                   <div className={`goal-check ${goal.done ? 'check-done' : 'check-todo'}`}>{goal.done ? '✓' : ''}</div>
                   <span className={`goal-text ${goal.done ? 'goal-done' : ''}`}>{goal.text}</span>
                 </div>
               ))}
             </div>
+
             <div className="widget-card widget-tip">
               <div className="section-label">Dica do dia</div>
               <p>💡 {dica}</p>
@@ -247,9 +288,11 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
         <SocialBar />
         <Footer />
       </main>
+
       {popupVisible && <div className="popup-toast"><span className="popup-icon">🎓</span><span className="popup-text">{popupMessage}</span></div>}
     </div>
   );
