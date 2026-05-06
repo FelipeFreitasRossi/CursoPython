@@ -1,35 +1,17 @@
 /* ===== VARIÁVEIS DE TEMA ===== */
+
 :root {
-  /* TEMA CLARO (padrão) */
-  --bg-body: #f3f4f6;
+  --bg-body: #f8fafc;
   --bg-card: #ffffff;
   --bg-sidebar: #ffffff;
-  --bg-input: #f9fafb;
-  --text-primary: #111827;
-  --text-secondary: #374151;
-  --text-muted: #4b5563;
-  --border-light: #e5e7eb;
-  --border-hover: #9ca3af;
-  --badge-blue-bg: #e0e7ff;
-  --badge-blue-text: #3730a3;
-  --badge-green-bg: #dcfce7;
-  --badge-green-text: #166534;
-  --badge-yellow-bg: #fef3c7;
-  --badge-yellow-text: #92400e;
-  --badge-red-bg: #fee2e2;
-  --badge-red-text: #b91c1c;
-  --badge-gray-bg: #f3f4f6;
-  --badge-gray-text: #4b5563;
-  --accent-primary: #3b82f6;      /* azul claro */
-  --accent-secondary: #f97316;    /* laranja */
-  --accent-gradient: linear-gradient(135deg, #3b82f6, #facc15);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --code-bg: #1e1e2f;
-  --code-text: #f1f5f9;
-  --btn-study-bg: #f97316;
-  --btn-study-hover: #ea580c;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --border-light: #e2e8f0;
+  --accent-primary: #2563eb;
+  --accent-secondary: #f59e0b;
 }
+
 
 body.dark {
   /* TEMA ESCURO (preto verdadeiro) */

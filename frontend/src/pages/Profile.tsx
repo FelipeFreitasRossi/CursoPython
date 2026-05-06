@@ -6,6 +6,18 @@ import Footer from '../components/Footer';
 import { API_URL } from '../../config';
 import './Profile.css';
 
+interface User {
+  id: string | number;
+  name: string;
+  email: string;
+  hasPurchased: boolean;
+}
+
+interface Goal {
+  text: string;
+  done: boolean;
+}
+
 const DICAS = [
   "✨ Revise o código que você escreveu ontem – ajuda a fixar.",
   "🐍 Use list comprehension para deixar seu código mais limpo.",
@@ -17,7 +29,7 @@ const DICAS = [
   "📝 Anote as dúvidas para pesquisar depois – são oportunidades de aprendizado.",
 ];
 
-const getDicaDoDia = () => {
+const getDicaDoDia = (): string => {
   const today = new Date().toDateString();
   const storedDate = localStorage.getItem('dica_date');
   const storedDica = localStorage.getItem('dica_text');
@@ -29,16 +41,16 @@ const getDicaDoDia = () => {
 };
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
-  // ===== Theme (claro/escuro) =====
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme === 'dark' ? 'dark' : 'light';
+  // Tema
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme');
+    return saved === 'dark' ? 'dark' : 'light';
   });
 
   useEffect(() => {
@@ -51,11 +63,11 @@ export default function Profile() {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  // ===== Objetivos persistentes =====
-  const [goals, setGoals] = useState(() => {
+  // Objetivos
+  const [goals, setGoals] = useState<Goal[]>(() => {
     const saved = localStorage.getItem('dashboard_goals');
     if (saved) return JSON.parse(saved);
     return [
@@ -66,7 +78,7 @@ export default function Profile() {
     ];
   });
 
-  const toggleGoal = (index) => {
+  const toggleGoal = (index: number) => {
     setGoals((prev) => {
       const newGoals = [...prev];
       newGoals[index] = { ...newGoals[index], done: !newGoals[index].done };
@@ -75,16 +87,16 @@ export default function Profile() {
     });
   };
 
-  // ===== Streak (sequência de estudos) =====
-  const [streak, setStreak] = useState(() => {
+  // Streak
+  const [streak, setStreak] = useState<number>(() => {
     const stored = localStorage.getItem('dashboard_streak');
-    return stored ? parseInt(stored) : 0;
+    return stored ? parseInt(stored, 10) : 0;
   });
-  const [lastStudyDate, setLastStudyDate] = useState(() => localStorage.getItem('dashboard_last_study') || '');
+  const [lastStudyDate, setLastStudyDate] = useState<string>(() => localStorage.getItem('dashboard_last_study') || '');
   const [popupMessage, setPopupMessage] = useState('');
   const [popupVisible, setPopupVisible] = useState(false);
 
-  const showPopup = (message, duration = 3000) => {
+  const showPopup = (message: string, duration = 3000) => {
     setPopupMessage(message);
     setPopupVisible(true);
     setTimeout(() => setPopupVisible(false), duration);
@@ -115,6 +127,7 @@ export default function Profile() {
   const weekDays = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
   const streakDaysArray = Array(7).fill(false).map((_, i) => i < Math.min(streak, 7));
 
+  // Dica do dia
   const [dica, setDica] = useState(getDicaDoDia);
   const refreshDica = () => {
     const newDica = DICAS[Math.floor(Math.random() * DICAS.length)];
@@ -123,7 +136,6 @@ export default function Profile() {
     localStorage.setItem('dica_text', newDica);
   };
 
-  // ===== Dados do backend =====
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -150,10 +162,16 @@ export default function Profile() {
 
   if (loading) return <div className="loading-screen">Carregando...</div>;
   if (error) return <div className="error-screen">{error}</div>;
+  if (!user) return <div className="loading-screen">Usuário não encontrado...</div>;
 
-  const firstName = user?.name?.split(' ')[0] || 'Aluno';
-  const initials = user?.name?.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() || 'AL';
-  const progressPercentage = user?.hasPurchased ? 35 : 0;
+  const firstName = user.name.split(' ')[0] || 'Aluno';
+  const initials = user.name
+    .split(' ')
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'AL';
+  const progressPercentage = user.hasPurchased ? 35 : 0;
 
   const modules = [
     { id: 1, title: 'Módulo 1 — Fundamentos', lessons: 8, hours: '3h 20min', state: progressPercentage > 0 ? 'done' : 'locked' },
@@ -163,8 +181,8 @@ export default function Profile() {
     { id: 5, title: 'Módulo 5 — Projeto Final', lessons: 5, hours: '2h', state: 'locked' },
   ];
 
-  const moduleStateIcon = (state) => (state === 'done' ? '✅' : state === 'active' ? '▶' : '🔒');
-  const moduleStateLabel = (state) => (state === 'done' ? 'Concluído' : state === 'active' ? 'Em progresso' : 'Bloqueado');
+  const moduleStateIcon = (state: string) => (state === 'done' ? '✅' : state === 'active' ? '▶' : '🔒');
+  const moduleStateLabel = (state: string) => (state === 'done' ? 'Concluído' : state === 'active' ? 'Em progresso' : 'Bloqueado');
 
   return (
     <div className="dash">
@@ -179,7 +197,7 @@ export default function Profile() {
         <nav className="sidebar-nav">
           <span className="nav-section">Menu</span>
           <div className="nav-item active"><span className="nav-icon">📊</span> Dashboard</div>
-          {user?.hasPurchased ? (
+          {user.hasPurchased ? (
             <Link to="/aulas" className="nav-item" onClick={() => setSidebarOpen(false)}><span className="nav-icon">📚</span> Aulas</Link>
           ) : (
             <Link to="/courses" className="nav-item" onClick={() => setSidebarOpen(false)}><span className="nav-icon">🛒</span> Comprar</Link>
@@ -223,7 +241,6 @@ export default function Profile() {
           </div>
         </header>
 
-        {/* Stats row */}
         <section className="stats-row">
           <div className="stat-card"><div className="stat-icon-wrap">📖</div><div className="stat-label">Aulas</div><div className="stat-value">{user.hasPurchased ? '14' : '0'}</div><div className="stat-badge badge-blue">{user.hasPurchased ? '+2' : 'Nenhuma'}</div></div>
           <div className="stat-card"><div className="stat-icon-wrap">⏱</div><div className="stat-label">Horas</div><div className="stat-value">{user.hasPurchased ? '8h' : '0h'}</div><div className="stat-badge badge-green">Meta: 10h</div></div>
