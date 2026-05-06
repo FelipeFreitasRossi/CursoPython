@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
 /* Reset básico */
 * {
   margin: 0;
@@ -146,14 +148,12 @@ body {
   margin-top: 1rem;
 }
 
-/* ========== HERO – SEM FUNDO PYTHON NO DESKTOP ========== */
+/* ========== HERO ========== */
 .hero {
   padding: 5rem 0;
   background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);
   overflow: hidden;
-  position: relative;
 }
-
 .hero-content {
   display: flex;
   align-items: center;
@@ -237,47 +237,6 @@ body {
   display: block;
 }
 
-/* Imagem de fundo do Python APENAS no mobile (bem visível) */
-@media (max-width: 768px) {
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 380px;
-    height: auto;
-    aspect-ratio: 1;
-    background-image: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original-wordmark.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.22;
-    pointer-events: none;
-    z-index: 0;
-    filter: blur(0.5px);
-  }
-  .hero .container {
-    position: relative;
-    z-index: 2;
-  }
-  .desktop-only {
-    display: none;
-  }
-  .hero-text h1 {
-    font-size: 2rem;
-  }
-  .hero-content {
-    flex-direction: column;
-    text-align: center;
-  }
-  .hero-buttons, .hero-stats {
-    justify-content: center;
-  }
-}
-
-/* ========== DIFERENCIAIS ========== */
 .diferenciais {
   padding: 5rem 0;
   background: linear-gradient(145deg, #f8fafc 0%, #ffffff 100%);
@@ -315,7 +274,7 @@ body {
   border-radius: 1.5rem;
   text-align: center;
   transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-  box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 20px -10px rgba(0,0,0,0.05);
   border: 1px solid #eef2ff;
 }
 .diferencial:hover {
@@ -334,7 +293,7 @@ body {
   border-radius: 50%;
   margin: 0 auto 1.5rem;
   transition: all 0.3s;
-  box-shadow: 0 8px 15px -6px rgba(55, 118, 171, 0.1);
+  box-shadow: 0 8px 15px -6px rgba(55,118,171,0.1);
 }
 .diferencial:hover .diferencial-icon {
   transform: scale(1.05);
@@ -504,11 +463,6 @@ body {
   padding: 5rem 0;
   background: #f8fafc;
 }
-.faq h2 {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
 .faq-list details {
   background: white;
   margin-bottom: 1rem;
@@ -580,7 +534,8 @@ body {
   flex-wrap: wrap;
   margin-bottom: 1.5rem;
 }
-.btn-cta-primary, .btn-cta-secondary {
+.btn-cta-primary,
+.btn-cta-secondary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -632,11 +587,6 @@ body {
   filter: drop-shadow(0 4px 15px rgba(0,0,0,0.2));
   animation: floatIcon 3s ease-in-out infinite;
 }
-@keyframes floatIcon {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
-}
 
 /* ========== SCROLL REVEAL ========== */
 .reveal {
@@ -659,23 +609,71 @@ body {
   flex: 1;
 }
 .social-bar-container {
-  margin-top: 2rem;
-  margin-bottom: 0;
+  margin: 2rem 0 0;
 }
 
-/* ========== RESPONSIVIDADE GERAL ========== */
+/* ========== KEYFRAMES ========== */
+@keyframes floatIcon {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========== RESPONSIVIDADE ========== */
 @media (max-width: 1024px) {
   .diferenciais-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
 }
+
 @media (max-width: 768px) {
   .desktop-nav {
     display: none !important;
   }
   .hamburguer {
     display: flex;
+  }
+  .hero {
+    background: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original-wordmark.svg') no-repeat center center;
+    background-size: 80% auto;
+    position: relative;
+    background-color: #f1f5f9;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 0;
+  }
+  .hero .container {
+    position: relative;
+    z-index: 2;
+  }
+  .hero-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  .hero-text h1 {
+    font-size: 2rem;
+  }
+  .hero-buttons {
+    justify-content: center;
+  }
+  .hero-stats {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .desktop-only {
+    display: none;
   }
   .python-logo-realista {
     height: 32px;
