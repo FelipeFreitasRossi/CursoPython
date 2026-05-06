@@ -58,23 +58,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// ========== ROTAS DE AUTENTICAÇÃO ==========
-app.post('/api/register', async (req, res) => {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
-  }
-  if (users.find(u => u.email === email)) {
-    return res.status(400).json({ error: 'Email já cadastrado' });
-  }
-  const hashed = await bcrypt.hash(password, 10);
-  const user: User = { id: users.length + 1, name, email, password: hashed };
-  users.push(user);
-  const token = jwt.sign({ id: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
-});
-
-app.post('/api/login', async (req, res) => {
+app.post('/api/Auth', async (req, res) => {
   const { email, password } = req.body;
   const user = users.find(u => u.email === email);
   if (!user) return res.status(401).json({ error: 'Credenciais inválidas' });
@@ -133,7 +117,7 @@ app.post('/api/create-preference', async (req, res) => {
       },
       auto_return: 'approved',
       external_reference: userId.toString(),
-      notification_url: `${process.env.WEBHOOK_URL || 'https://seudominio.com'}/webhook`,
+      notification_url: `${process.env.WEBHOOK_URL || 'https://cursopython-97q6.onrender.com'}/webhook`,
     };
     const response = await preference.create({ body });
     res.json({ checkoutUrl: response.init_point });
