@@ -26,6 +26,7 @@ export default function Auth() {
     try {
       const res = await axios.post(`${API_URL}/api/login`, loginData);
       localStorage.setItem('token', res.data.token);
+      // Redireciona para a página de pagamento (ou diretamente para aulas se já tiver comprado? Melhor ir para pagamento)
       navigate('/courses');
     } catch (err: any) {
       setError(err.response?.data?.error || 'E-mail ou senha inválidos');

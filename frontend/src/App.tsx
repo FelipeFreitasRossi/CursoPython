@@ -12,7 +12,6 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Auth />} />
-        {/* Redireciona /register para /login (evita duplicação) */}
         <Route path="/register" element={<Navigate to="/login" replace />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />

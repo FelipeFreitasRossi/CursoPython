@@ -17,12 +17,17 @@ export default function Courses() {
   useEffect(() => {
     const success = searchParams.get('success');
     const canceled = searchParams.get('canceled');
+    const pending = searchParams.get('pending');
+
     if (success === 'true') {
-      setMessage('✅ Pagamento aprovado! Redirecionando...');
-      setTimeout(() => navigate('/profile', { replace: true }), 1500);
+      setMessage('✅ Pagamento aprovado! Redirecionando para seu perfil...');
+      setTimeout(() => navigate('/profile'), 2000);
     } else if (canceled === 'true') {
       setMessageType('error');
       setMessage('❌ Pagamento cancelado. Você pode tentar novamente.');
+    } else if (pending === 'true') {
+      setMessageType('error');
+      setMessage('⏳ Pagamento pendente. Aguarde a confirmação.');
     }
   }, [searchParams, navigate]);
 
@@ -73,7 +78,11 @@ export default function Courses() {
         <div className="payment-container">
           <div className="payment-card">
             <div className="payment-header">
-              <img src="https://i.postimg.cc/3N8WrL4W/Logo-Python-removebg-preview.png" alt="Python Logo" className="payment-logo" />
+              <img
+                src="https://i.postimg.cc/3N8WrL4W/Logo-Python-removebg-preview.png"
+                alt="Python Logo"
+                className="payment-logo"
+              />
               <h1>{course.title}</h1>
               <p className="payment-description">{course.description}</p>
             </div>
@@ -83,10 +92,16 @@ export default function Courses() {
             </div>
             <ul className="payment-features">
               {course.features.map((feature, idx) => (
-                <li key={idx}><span className="feature-icon">✓</span>{feature}</li>
+                <li key={idx}>
+                  <span className="feature-icon">✓</span> {feature}
+                </li>
               ))}
             </ul>
-            {message && <div className={`payment-message ${messageType}`}>{message}</div>}
+            {message && (
+              <div className={`payment-message ${messageType === 'success' ? 'success' : 'error'}`}>
+                {message}
+              </div>
+            )}
             <button onClick={handleBuy} disabled={buying} className="payment-button">
               {buying ? 'Processando...' : `Comprar agora - R$ ${course.price.toFixed(2)}`}
             </button>
